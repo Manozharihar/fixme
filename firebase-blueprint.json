@@ -1,0 +1,62 @@
+{
+  "entities": {
+    "Guide": {
+      "title": "Repair Guide",
+      "description": "Step-by-step repair documentation for devices.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "device": { "type": "string" },
+        "category": { "type": "string" },
+        "difficulty": { "type": "string", "enum": ["Easy", "Moderate", "Difficult"] },
+        "time": { "type": "string" },
+        "score": { "type": "number" },
+        "steps": { 
+          "type": "array",
+          "items": { "$ref": "#/entities/Step" }
+        },
+        "tools": { "type": "array", "items": { "type": "string" } },
+        "parts": { "type": "array", "items": { "type": "string" } }
+      },
+      "required": ["id", "name", "device", "category", "difficulty", "time", "score", "steps", "tools", "parts"]
+    },
+    "Step": {
+      "title": "Repair Step",
+      "description": "A single instruction in a repair guide.",
+      "type": "object",
+      "properties": {
+        "title": { "type": "string" },
+        "text": { "type": "string" },
+        "image": { "type": "string" }
+      },
+      "required": ["title", "text", "image"]
+    },
+    "Part": {
+      "title": "Repair Part",
+      "description": "A component available in the marketplace.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "price": { "type": "number" },
+        "image": { "type": "string" },
+        "category": { "type": "string" },
+        "compatibility": { "type": "array", "items": { "type": "string" } },
+        "inStock": { "type": "boolean" },
+        "successRate": { "type": "number" }
+      },
+      "required": ["id", "name", "price", "image", "category", "compatibility", "inStock", "successRate"]
+    }
+  },
+  "firestore": {
+    "guides/{guideId}": {
+      "schema": "Guide",
+      "description": "Collection of repair guides."
+    },
+    "parts/{partId}": {
+      "schema": "Part",
+      "description": "Collection of available parts."
+    }
+  }
+}

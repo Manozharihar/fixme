@@ -1,0 +1,59 @@
+@import "tailwindcss";
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;500;700&family=Space+Mono&display=swap');
+
+@theme {
+  --font-heading: "Space Grotesk", sans-serif;
+  --font-body: "Space Grotesk", sans-serif;
+  --font-mono: "Space Mono", monospace;
+
+  --color-artistic-bg: #0F0F0F;
+  --color-artistic-surface: #1A1A1A;
+  --color-artistic-border: #333333;
+  --color-artistic-accent: #FF4D00;
+  --color-artistic-text: #E0E0E0;
+  --color-artistic-muted: #71717A;
+}
+
+@layer base {
+  body {
+    @apply bg-artistic-bg text-artistic-text font-body antialiased;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-heading font-bold uppercase tracking-tighter;
+  }
+}
+
+@layer components {
+  .brutal-border {
+    @apply border border-artistic-border;
+  }
+
+  .blueprint-card {
+    @apply bg-artistic-surface border border-artistic-border p-5 transition-all duration-200;
+  }
+
+  .blueprint-card:hover {
+    @apply border-artistic-accent -translate-y-1;
+  }
+
+  .blueprint-button {
+    @apply px-6 py-3 font-heading font-bold uppercase text-xs tracking-widest bg-transparent border border-artistic-accent text-artistic-accent transition-all duration-200 hover:bg-artistic-accent hover:text-black active:scale-95 cursor-pointer;
+  }
+
+  .blueprint-button-primary {
+    @apply bg-artistic-accent text-black hover:bg-transparent hover:text-artistic-accent;
+  }
+
+  .blueprint-input {
+    @apply w-full bg-zinc-900 border border-artistic-border p-4 text-artistic-text font-mono text-sm focus:outline-none focus:border-artistic-accent;
+  }
+
+  .accent-text {
+    @apply text-artistic-accent;
+  }
+
+  .nav-link {
+    @apply font-heading font-bold uppercase text-[0.75rem] tracking-[0.1em] text-zinc-500 hover:text-artistic-accent transition-colors;
+  }
+}

@@ -1,0 +1,67 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Default deny
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // Helper functions
+    function isSignedIn() { return request.auth != null; }
+    function isVerified() { return isSignedIn() && request.auth.token.email_verified == true; }
+    function isAdmin() { 
+      return isSignedIn() && (
+        request.auth.token.email == 'mharihar441@gmail.com' || 
+        exists(/databases/$(database)/documents/admins/$(request.auth.uid))
+      );
+    }
+    function isValidId(id) { return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$'); }
+
+    // Entity validation helpers
+    function isValidGuide(data) {
+      return data.keys().hasAll(['id', 'name', 'device', 'category', 'difficulty', 'time', 'score', 'steps', 'tools', 'parts']) &&
+             data.keys().size() == 10 &&
+             data.id is string && isValidId(data.id) &&
+             data.name is string && data.name.size() <= 200 &&
+             data.device is string &&
+             data.category is string &&
+             data.difficulty in ['Easy', 'Moderate', 'Difficult'] &&
+             data.time is string &&
+             data.score is number &&
+             data.steps is list &&
+             data.tools is list &&
+             data.parts is list;
+    }
+
+    function isValidPart(data) {
+      return data.keys().hasAll(['id', 'name', 'price', 'image', 'category', 'compatibility', 'inStock', 'successRate']) &&
+             data.keys().size() == 8 &&
+             data.id is string && isValidId(data.id) &&
+             data.name is string &&
+             data.price is number &&
+             data.image is string &&
+             data.category is string &&
+             data.compatibility is list &&
+             data.inStock is bool &&
+             data.successRate is number;
+    }
+
+    // Routes
+    match /guides/{guideId} {
+      allow read: if true;
+      allow create, update: if isAdmin() && isValidGuide(request.resource.data);
+      allow delete: if isAdmin();
+    }
+
+    match /parts/{partId} {
+      allow read: if true;
+      allow create, update: if isAdmin() && isValidPart(request.resource.data);
+      allow delete: if isAdmin();
+    }
+
+    match /admins/{adminId} {
+      allow read: if isSignedIn();
+      allow write: if false; // Only manageable via console
+    }
+  }
+}
