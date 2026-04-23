@@ -14,7 +14,7 @@ export const MOCK_PARTS: Part[] = [
   {
     id: "p2",
     name: "Mahindra Air Filter Assembly",
-    price: 18.50,
+    price: 0.012,
     image: "https://images.unsplash.com/photo-1599933310633-2fc025fe2b88?w=400",
     category: "Farming Equipment",
     compatibility: ["Mahindra OJA Series", "Mahindra Jivo"],
