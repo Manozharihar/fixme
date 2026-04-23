@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route, useParams } from "react-router-
 import { Navbar } from "./components/Navbar.tsx";
 import { Hero } from "./components/Hero.tsx";
 import { Cart } from "./components/Cart.tsx";
+import IFixitSearch from "./components/IFixitSearch.tsx";
 import { CartProvider, useCart } from "./context/CartContext";
 import { MOCK_PARTS } from "./constants.ts";
 import { Guide, Part } from "./types.ts";
@@ -158,6 +159,8 @@ function Home() {
         </div>
       </section>
 
+      <IFixitSearch />
+
       {isAdmin && (
         <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 border-t border-artistic-border">
           <div className="flex flex-col items-center gap-4">
@@ -253,15 +256,46 @@ function Guides() {
 function GuideDetail() {
   const { id } = useParams();
   const [guide, setGuide] = React.useState<Guide | null>(null);
+  const [ifixitGuide, setIfixitGuide] = React.useState<any>(null);
   const [activeStep, setActiveStep] = React.useState(0);
+  const [loading, setLoading] = React.useState(false);
 
   React.useEffect(() => {
     if (id) {
-      firebaseService.getGuideById(id).then(setGuide);
+      firebaseService.getGuideById(id).then(async (firebaseGuide) => {
+        setGuide(firebaseGuide);
+        if (firebaseGuide) {
+          await loadIfixitGuide(firebaseGuide.name);
+        }
+      });
     }
   }, [id]);
 
+  const loadIfixitGuide = async (guideName: string) => {
+    setLoading(true);
+    try {
+      // Search for the guide on iFixit
+      const searchResponse = await fetch(`https://www.ifixit.com/api/2.0/suggest/${encodeURIComponent(guideName)}?doctypes=guide`);
+      const searchData = await searchResponse.json();
+      
+      if (searchData.results && searchData.results.length > 0) {
+        // Load the first matching guide
+        const guideId = searchData.results[0].guideid;
+        const guideResponse = await fetch(`https://www.ifixit.com/api/2.0/guides/${guideId}`);
+        const guideData = await guideResponse.json();
+        setIfixitGuide(guideData);
+      }
+    } catch (error) {
+      console.error('Failed to load iFixit guide:', error);
+    }
+    setLoading(false);
+  };
+
   if (!guide) return <div className="pt-32 text-center font-mono">LOADING_STREAMS...</div>;
+
+  // If we have iFixit data, use it for display
+  const displayGuide = ifixitGuide || guide;
+  const steps = ifixitGuide ? ifixitGuide.steps : guide.steps;
 
   return (
     <div className="pt-20 min-h-screen md:ml-20">
@@ -274,16 +308,16 @@ function GuideDetail() {
                 <span>/</span>
                 <span className="text-zinc-500">{guide.device}</span>
               </div>
-              <h1 className="text-5xl md:text-7xl font-bold tracking-tighter leading-none">{guide.name}</h1>
+              <h1 className="text-5xl md:text-7xl font-bold tracking-tighter leading-none">{displayGuide.title || guide.name}</h1>
             </div>
             <div className="flex gap-4">
               <div className="brutal-border py-4 px-6 bg-zinc-950">
                 <div className="text-[10px] font-mono opacity-40 uppercase mb-1">SCORE</div>
-                <div className="text-2xl font-bold accent-text">{guide.score}/10</div>
+                <div className="text-2xl font-bold accent-text">{displayGuide.score || guide.score}/10</div>
               </div>
               <div className="brutal-border py-4 px-6 bg-zinc-950">
                 <div className="text-[10px] font-mono opacity-40 uppercase mb-1">DURATION</div>
-                <div className="text-2xl font-bold">{guide.time}</div>
+                <div className="text-2xl font-bold">{displayGuide.time_required || guide.time}</div>
               </div>
             </div>
           </div>
@@ -291,89 +325,121 @@ function GuideDetail() {
       </div>
 
       <div className="max-w-7xl mx-auto px-4 py-20">
-        <div className="grid lg:grid-cols-12 gap-16">
-          {/* Steps list */}
-          <div className="lg:col-span-4 space-y-4">
-            <h2 className="nav-link mb-8">Navigation_Steps</h2>
-            {guide.steps.map((step, index) => (
-              <button
-                key={index}
-                onClick={() => setActiveStep(index)}
-                className={cn(
-                  "w-full text-left p-6 brutal-border transition-all duration-200 relative group flex gap-6 items-center",
-                  activeStep === index 
-                    ? "bg-zinc-900 border-artistic-accent" 
-                    : "bg-transparent opacity-50 grayscale hover:opacity-100 hover:grayscale-0"
-                )}
-              >
-                <div className={cn(
-                  "font-mono text-lg font-bold shrink-0",
-                  activeStep === index ? "accent-text" : "text-zinc-500"
-                )}>
-                  [{String(index + 1).padStart(2, '0')}]
+        {loading && <div className="text-center font-mono mb-8">LOADING_IFIXIT_DATA...</div>}
+        
+        {steps && steps.length > 0 ? (
+          <div className="grid lg:grid-cols-12 gap-16">
+            {/* Steps list */}
+            <div className="lg:col-span-4 space-y-4">
+              <h2 className="nav-link mb-8">Navigation_Steps</h2>
+              {steps.map((step: any, index: number) => (
+                <button
+                  key={index}
+                  onClick={() => setActiveStep(index)}
+                  className={cn(
+                    "w-full text-left p-6 brutal-border transition-all duration-200 relative group flex gap-6 items-center",
+                    activeStep === index 
+                      ? "bg-zinc-900 border-artistic-accent" 
+                      : "bg-transparent opacity-50 grayscale hover:opacity-100 hover:grayscale-0"
+                  )}
+                >
+                  <div className={cn(
+                    "font-mono text-lg font-bold shrink-0",
+                    activeStep === index ? "accent-text" : "text-zinc-500"
+                  )}>
+                    [{String(index + 1).padStart(2, '0')}]
+                  </div>
+                  <div>
+                    <h4 className="text-lg font-bold uppercase transition-colors group-hover:accent-text">
+                      {step.title || `Step ${index + 1}`}
+                    </h4>
+                  </div>
+                </button>
+              ))}
+            </div>
+
+            {/* Viewer component */}
+            <div className="lg:col-span-5 relative">
+              <div className="sticky top-28 brutal-border bg-zinc-900 p-1">
+                <div className="aspect-[4/5] relative overflow-hidden bg-black">
+                  {ifixitGuide ? (
+                    steps[activeStep].media?.data?.[0]?.standard ? (
+                      <img 
+                        src={steps[activeStep].media.data[0].standard} 
+                        alt={steps[activeStep].title || `Step ${activeStep + 1}`} 
+                        className="w-full h-full object-cover transition-transform duration-700 hover:scale-105"
+                      />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center text-zinc-500">
+                        No image available
+                      </div>
+                    )
+                  ) : (
+                    <img 
+                      src={steps[activeStep].image} 
+                      alt={steps[activeStep].title} 
+                      className="w-full h-full object-cover transition-transform duration-700 hover:scale-105"
+                    />
+                  )}
+                  <div className="absolute top-4 left-4 font-mono text-[10px] bg-black/80 px-2 py-1 brutal-border uppercase">
+                    RAW_FEED // {String(activeStep + 1).padStart(3, '0')}
+                  </div>
                 </div>
+                <div className="p-8 border-t border-artistic-border">
+                  {ifixitGuide ? (
+                    <div>
+                      {steps[activeStep].lines?.map((line: any, idx: number) => (
+                        <div key={idx} dangerouslySetInnerHTML={{ __html: line.text_rendered }} />
+                      ))}
+                    </div>
+                  ) : (
+                    <p className="text-lg font-body text-zinc-300 leading-relaxed italic">
+                       &ldquo;{steps[activeStep].text}&rdquo;
+                    </p>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            {/* Requirements - Sidebar Style */}
+            <div className="lg:col-span-3 space-y-12">
+              {ifixitGuide?.tools && ifixitGuide.tools.length > 0 && (
                 <div>
-                  <h4 className="text-lg font-bold uppercase transition-colors group-hover:accent-text">
-                    {step.title}
-                  </h4>
-                </div>
-              </button>
-            ))}
-          </div>
-
-          {/* Viewer component */}
-          <div className="lg:col-span-5 relative">
-            <div className="sticky top-28 brutal-border bg-zinc-900 p-1">
-              <div className="aspect-[4/5] relative overflow-hidden bg-black">
-                <img 
-                  src={guide.steps[activeStep].image} 
-                  alt={guide.steps[activeStep].title} 
-                  className="w-full h-full object-cover transition-transform duration-700 hover:scale-105"
-                />
-                <div className="absolute top-4 left-4 font-mono text-[10px] bg-black/80 px-2 py-1 brutal-border uppercase">
-                  RAW_FEED // {String(activeStep + 1).padStart(3, '0')}
-                </div>
-              </div>
-              <div className="p-8 border-t border-artistic-border">
-                <p className="text-lg font-body text-zinc-300 leading-relaxed italic">
-                   &ldquo;{guide.steps[activeStep].text}&rdquo;
-                </p>
-              </div>
-            </div>
-          </div>
-
-          {/* Requirements - Sidebar Style */}
-          <div className="lg:col-span-3 space-y-12">
-            <div>
-              <h2 className="nav-link mb-6">Tools_Required</h2>
-              <div className="space-y-2">
-                {guide.tools.map(tool => (
-                  <div key={tool} className="flex items-center justify-between p-4 brutal-border bg-zinc-950/50 group">
-                    <div className="text-xs font-mono uppercase tracking-tight">{tool}</div>
-                    <button className="accent-text opacity-0 group-hover:opacity-100 transition-opacity">
-                       <ArrowRight className="w-4 h-4" />
-                    </button>
+                  <h2 className="nav-link mb-6">Tools_Required</h2>
+                  <div className="space-y-2">
+                    {ifixitGuide.tools.map((tool: any, idx: number) => (
+                      <div key={idx} className="flex items-center justify-between p-4 brutal-border bg-zinc-950/50 group">
+                        <div className="text-xs font-mono uppercase tracking-tight">{tool.text}</div>
+                        <span className="text-xs text-zinc-500">x{tool.quantity}</span>
+                      </div>
+                    ))}
                   </div>
-                ))}
-              </div>
-            </div>
+                </div>
+              )}
 
-            <div>
-              <h2 className="nav-link mb-6">Components_Needed</h2>
-              <div className="space-y-4">
-                {guide.parts.map(part => (
-                  <div key={part} className="brutal-border p-6 bg-zinc-900 group">
-                    <div className="font-mono text-[10px] opacity-40 mb-2">PART_IDENTIFIER</div>
-                    <div className="text-sm font-bold uppercase mb-6">{part}</div>
-                    <button className="w-full bg-artistic-accent text-black font-bold py-3 uppercase text-[10px] tracking-widest hover:bg-white transition-colors">
-                      FETCH_COMPONENT
-                    </button>
+              {guide.parts && guide.parts.length > 0 && (
+                <div>
+                  <h2 className="nav-link mb-6">Components_Needed</h2>
+                  <div className="space-y-4">
+                    {guide.parts.map((part, idx) => (
+                      <div key={idx} className="brutal-border p-6 bg-zinc-900 group">
+                        <div className="font-mono text-[10px] opacity-40 mb-2">PART_IDENTIFIER</div>
+                        <div className="text-sm font-bold uppercase mb-6">{part}</div>
+                        <button className="w-full bg-artistic-accent text-black font-bold py-3 uppercase text-[10px] tracking-widest hover:bg-white transition-colors">
+                          FETCH_COMPONENT
+                        </button>
+                      </div>
+                    ))}
                   </div>
-                ))}
-              </div>
+                </div>
+              )}
             </div>
           </div>
-        </div>
+        ) : (
+          <div className="text-center py-20">
+            <p className="font-mono text-zinc-500">No steps available for this guide.</p>
+          </div>
+        )}
       </div>
     </div>
   );

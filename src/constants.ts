@@ -5,7 +5,7 @@ export const MOCK_PARTS: Part[] = [
     id: "p1",
     name: "MacBook Pro 13\" (A2338) Battery",
     price: 99.99,
-    image: "https://images.unsplash.com/photo-1593642702821-c8da6771f0c6?w=400",
+    image: "61cILglrAeL.jpg?w=400",
     category: "Mobile & Electronics",
     compatibility: ["MacBook Pro 13\" M1", "MacBook Pro 13\" M2"],
     inStock: true,

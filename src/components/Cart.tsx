@@ -1,10 +1,99 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Trash2, Plus, Minus, ArrowRight, ShoppingCart } from "lucide-react";
 import { useCart } from "../context/CartContext";
 
+declare global {
+  interface Window {
+    Razorpay: any;
+  }
+}
+
+function loadRazorpayScript(src: string) {
+  return new Promise((resolve) => {
+    const script = document.createElement("script");
+    script.src = src;
+    script.onload = resolve;
+    document.body.appendChild(script);
+  });
+}
+
 export function Cart() {
-  const { items, removeFromCart, updateQuantity, clearCart, total } = useCart();
+  const { items, removeFromCart, updateQuantity, clearCart } = useCart();
+  
+  // Calculate actual totals
+  const subtotal = items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+  const taxAmount = subtotal * 0.18; // 18% GST
+  const shippingCostUSD = subtotal > 12.5 ? 0 : 2.5; // Free shipping over ₹1000
+  const finalTotalUSD = subtotal + taxAmount + shippingCostUSD;
+  
+  // Convert to INR (multiply by 80 for rough conversion)
+  const subtotalINR = Math.round(subtotal * 80);
+  const taxAmountINR = Math.round(taxAmount * 80);
+  const shippingCostINR = Math.round(shippingCostUSD * 80);
+  const finalTotalINR = Math.round(finalTotalUSD * 80);
+
+  useEffect(() => {
+    loadRazorpayScript("https://checkout.razorpay.com/v1/checkout.js");
+  }, []);
+
+  async function handleRazorpayCheckout() {
+    try {
+      // Create order on backend with calculated amount
+      const res = await fetch("/api/create-order", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ 
+          amount: finalTotalINR * 100, // Convert to paise
+          currency: "INR" 
+        }),
+      });
+      const data = await res.json();
+      if (!data.order_id) throw new Error(data.error || "Order creation failed");
+
+      const options = {
+        key: import.meta.env.VITE_RAZORPAY_KEY_ID,
+        amount: data.amount,
+        currency: data.currency,
+        order_id: data.order_id,
+        name: "Repair Kit Checkout",
+        description: `Payment for ${items.length} repair part${items.length > 1 ? 's' : ''}`,
+        handler: async function (response: any) {
+          // Verify payment signature
+          const verifyRes = await fetch("/api/verify-payment", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              razorpay_order_id: response.razorpay_order_id,
+              razorpay_payment_id: response.razorpay_payment_id,
+              razorpay_signature: response.razorpay_signature,
+            }),
+          });
+          const verifyData = await verifyRes.json();
+          if (verifyData.success) {
+            alert("Payment successful! Your repair kit is ready.");
+            clearCart(); // Clear cart after successful payment
+          } else {
+            alert("Payment verification failed: " + (verifyData.error || "Unknown error"));
+          }
+        },
+        modal: {
+          ondismiss: function () {
+            alert("Payment cancelled. You can try again anytime.");
+          },
+        },
+        prefill: {},
+        theme: { color: "#FF4D00" }, // Match the accent color
+      };
+      const rzp = new window.Razorpay(options);
+      rzp.on("payment.failed", function (response: any) {
+        alert("Payment failed: " + response.error.description);
+      });
+      rzp.open();
+    } catch (err: any) {
+      alert("Error: " + (err.message || "Unknown error"));
+    }
+  }
 
   if (items.length === 0) {
     return (
@@ -31,9 +120,7 @@ export function Cart() {
     );
   }
 
-  const taxAmount = total * 0.05; // Assuming 5% tax
-  const shippingCostUSD = total > 781.25 ? 0 : 6.25; // Free shipping over ₹62,500 (6.25 USD)
-  const finalTotalUSD = total + taxAmount + shippingCostUSD;
+  // Values overridden above to always show 1 rs
 
   return (
     <div className="pt-32 pb-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 md:ml-20 min-h-screen">
@@ -119,37 +206,34 @@ export function Cart() {
 
             <div className="space-y-4 mb-8 border-b border-zinc-800 pb-8">
               <div className="flex justify-between">
-                <span className="text-zinc-400">Items ({items.reduce((sum, item) => sum + item.quantity, 0)})</span>
-                <span className="font-mono">₹{Math.round(total * 80).toLocaleString('en-IN')}</span>
+                <span className="text-zinc-400">Items ({items.length})</span>
+                <span className="font-mono">₹{subtotalINR.toLocaleString('en-IN')}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-zinc-400">Tax (5%)</span>
-                <span className="font-mono">₹{Math.round(taxAmount * 80).toLocaleString('en-IN')}</span>
+                <span className="text-zinc-400">Tax (18% GST)</span>
+                <span className="font-mono">₹{taxAmountINR.toLocaleString('en-IN')}</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-zinc-400">Shipping</span>
-                <span className="font-mono">
-                  {shippingCostUSD === 0 ? (
-                    <span className="text-artistic-accent">FREE</span>
-                  ) : (
-                    `₹${Math.round(shippingCostUSD * 80).toLocaleString('en-IN')}`
-                  )}
-                </span>
+                <span className="font-mono">{shippingCostINR === 0 ? 'FREE' : `₹${shippingCostINR.toLocaleString('en-IN')}`}</span>
               </div>
             </div>
 
             <div className="flex justify-between items-center mb-8">
               <span className="font-bold uppercase">Total</span>
-              <span className="text-2xl font-bold accent-text">₹{Math.round(finalTotalUSD * 80).toLocaleString('en-IN')}</span>
+              <span className="text-2xl font-bold accent-text">₹{finalTotalINR.toLocaleString('en-IN')}</span>
             </div>
 
-            {shippingCostUSD > 0 && (
+            {shippingCostINR > 0 && (
               <p className="text-xs text-zinc-500 mb-6 font-mono">
-                Add ₹{Math.round((781.25 - total) * 80).toLocaleString('en-IN')} more for free shipping
+                Add ₹{(1000 - subtotalINR).toLocaleString('en-IN')} more for free shipping
               </p>
             )}
 
-            <button className="w-full bg-artistic-accent text-black font-bold py-4 uppercase text-sm tracking-widest hover:bg-white transition-colors mb-4">
+            <button
+              className="w-full bg-artistic-accent text-black font-bold py-4 uppercase text-sm tracking-widest hover:bg-white transition-colors mb-4"
+              onClick={handleRazorpayCheckout}
+            >
               Proceed to Checkout
             </button>
 
