@@ -22,7 +22,7 @@ const IFixitSearch: React.FC<{ initialQuery?: string }> = ({ initialQuery }) => 
   const [selectedGuide, setSelectedGuide] = useState<Guide | null>(null);
   const [loading, setLoading] = useState(false);
 
-  const API_BASE = import.meta.env.VITE_API_URL || "";
+  const API_BASE = (import.meta.env.VITE_API_URL || "").replace(/\/$/, "");
 
   const searchGuides = async (searchStr: string = query) => {
     if (!searchStr) return;

@@ -53,7 +53,7 @@ export function Cart() {
         throw new Error("Missing public Razorpay key. Set VITE_RAZORPAY_KEY_ID in your .env file.");
       }
 
-      const API_BASE = import.meta.env.VITE_API_URL || "";
+      const API_BASE = (import.meta.env.VITE_API_URL || "").replace(/\/$/, "");
       // Create order on backend with calculated amount
       const res = await fetch(`${API_BASE}/api/create-order`, {
         method: "POST",
