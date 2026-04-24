@@ -1,9 +1,12 @@
 import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Trash2, Plus, Minus, ArrowRight, ShoppingCart, CheckCircle, Download, Printer, ArrowLeft, CreditCard } from "lucide-react";
+import { Trash2, Plus, Minus, ArrowRight, ShoppingCart } from "lucide-react";
 import { useCart } from "../context/CartContext";
 import { firebaseService } from "../services/firebaseService";
 import { auth, signInWithGoogle } from "../lib/firebase";
+import { auth } from "../lib/firebase";
 
 declare global {
   interface Window {
@@ -98,6 +101,8 @@ export function Cart() {
               razorpay_order_id: response.razorpay_order_id,
               razorpay_payment_id: response.razorpay_payment_id,
               razorpay_signature: response.razorpay_signature,
+              receiptEmail: auth.currentUser?.email,
+              amount: data.amount,
             }),
           });
           const verifyData = await verifyRes.json();
@@ -122,6 +127,7 @@ export function Cart() {
             } else {
               alert("Payment successful! Your repair kit is ready.");
             }
+            alert("Payment successful! Your repair kit is ready.");
             clearCart(); // Clear cart after successful payment
           } else {
             alert("Payment verification failed: " + (verifyData.error || "Unknown error"));
@@ -135,6 +141,7 @@ export function Cart() {
         prefill: {
           email: auth.currentUser?.email || ""
         },
+        prefill: {},
         theme: { color: "#FF4D00" }, // Match the accent color
       };
       const rzp = new window.Razorpay(options);
