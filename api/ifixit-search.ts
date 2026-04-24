@@ -14,7 +14,7 @@ export default async function handler(req: any, res: any) {
   }
 
   try {
-    const response = await fetch(`https://www.ifixit.com/api/2.0/suggest/${encodeURIComponent(query)}?doctypes=guide`);
+    const response = await fetch(`https://www.ifixit.com/api/2.0/search/${encodeURIComponent(query)}?filter=guide`);
     const data = await response.json();
 
     if (!response.ok) {

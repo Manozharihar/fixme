@@ -1,5 +1,5 @@
 import React from "react";
-import { BrowserRouter as Router, Routes, Route, useParams } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route, useParams, useLocation } from "react-router-dom";
 import { Navbar } from "./components/Navbar.tsx";
 import { Hero } from "./components/Hero.tsx";
 import { Cart } from "./components/Cart.tsx";
@@ -103,14 +103,13 @@ function Guides() {
   const [guides, setGuides] = React.useState<Guide[]>(MOCK_GUIDES);
   const [filter, setFilter] = React.useState("ALL");
   const [searchQuery, setSearchQuery] = React.useState("");
+  const location = useLocation();
 
   React.useEffect(() => {
-    const urlParams = new URLSearchParams(window.location.search);
+    const urlParams = new URLSearchParams(location.search);
     const search = urlParams.get('search');
-    if (search) {
-      setSearchQuery(search);
-    }
-  }, []);
+    setSearchQuery(search || "");
+  }, [location.search]);
 
   const categories = ["ALL", ...new Set(guides.map(g => g.category))];
   

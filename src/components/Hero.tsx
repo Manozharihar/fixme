@@ -11,7 +11,7 @@ export function Hero() {
 
   const handleSearch = () => {
     if (searchQuery.trim()) {
-      window.location.href = `/guides?search=${encodeURIComponent(searchQuery)}`;
+      navigate(`/guides?search=${encodeURIComponent(searchQuery)}`);
     }
   };
 

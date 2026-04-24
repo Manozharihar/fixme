@@ -24,13 +24,10 @@ const IFixitSearch: React.FC<{ initialQuery?: string }> = ({ initialQuery }) => 
 
   const API_BASE = import.meta.env.VITE_API_URL || "";
 
-  const searchGuides = async () => {
-    if (!query) return;
-    setLoading(true);
+  const searchGuides = async ()
     try {
-      const response = await fetch(`${API_BASE}/api/ifixit-search?q=${encodeURIComponent(query)}`);
-      const data = await response.json();
-      setResults(data.results || []);
+      const response = await fetch(`${API_BASE}/api/ifixit-search?q=${encodeURIComponent(searchStr)}`);
+      cs
     } catch (error) {
       console.error('Search failed:', error);
     }
@@ -39,9 +36,9 @@ const IFixitSearch: React.FC<{ initialQuery?: string }> = ({ initialQuery }) => 
 
   React.useEffect(() => {
     if (initialQuery) {
-      searchGuides();
+      setQuery(initialQuery);
+      searchGuides(initialQuery);
     }
-  }, [initialQuery]);
 
   const loadCategories = async () => {
     setLoading(true);
@@ -69,11 +66,10 @@ const IFixitSearch: React.FC<{ initialQuery?: string }> = ({ initialQuery }) => 
 
   const handleCategoryClick = (category: string) => {
     setQuery(category);
-    searchGuides();
+    searchGuides(category);
   };
 
-  return (
-    <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 border-t border-artistic-border">
+  return (sName="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 border-t border-artistic-border">
       <h2 className="nav-link mb-8">Repair Guides</h2>
       
       <div className="mb-8">
