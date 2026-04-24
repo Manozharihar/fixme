@@ -1,6 +1,7 @@
 import dotenv from "dotenv";
 dotenv.config();
 import express from "express";
+import cors from "cors";
 import Razorpay from "razorpay";
 import crypto from "crypto";
 import { createServer as createViteServer } from "vite";
@@ -44,6 +45,7 @@ const transporter = nodemailer.createTransport({
 const expressApp = express();
 const PORT = 3000;
 
+expressApp.use(cors());
 expressApp.use(express.json());
 
 // Create Razorpay Order

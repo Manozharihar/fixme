@@ -53,8 +53,9 @@ export function Cart() {
         throw new Error("Missing public Razorpay key. Set VITE_RAZORPAY_KEY_ID in your .env file.");
       }
 
+      const API_BASE = import.meta.env.VITE_API_URL || "";
       // Create order on backend with calculated amount
-      const res = await fetch("/api/create-order", {
+      const res = await fetch(`${API_BASE}/api/create-order`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ 
@@ -62,6 +63,12 @@ export function Cart() {
           currency: "INR" 
         }),
       });
+
+      if (!res.ok) {
+        const errText = await res.text();
+        throw new Error(`Server returned ${res.status}. Is your backend running and VITE_API_URL set correctly?`);
+      }
+
       const data = await res.json();
       if (!data.order_id) throw new Error(data.error || "Order creation failed");
 
@@ -74,7 +81,7 @@ export function Cart() {
         description: `Payment for ${items.length} repair part${items.length > 1 ? 's' : ''}`,
         handler: async function (response: any) {
           // Verify payment signature
-          const verifyRes = await fetch("/api/verify-payment", {
+          const verifyRes = await fetch(`${API_BASE}/api/verify-payment`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
@@ -85,6 +92,11 @@ export function Cart() {
               amount: data.amount,
             }),
           });
+
+          if (!verifyRes.ok) {
+             throw new Error(`Payment verification failed (Server returned ${verifyRes.status}).`);
+          }
+
           const verifyData = await verifyRes.json();
           if (verifyData.success) {
             try {
