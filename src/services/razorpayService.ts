@@ -14,7 +14,14 @@ export const razorpayService = {
       }),
     });
     if (!response.ok) {
-      throw new Error(`Failed to create order: Server returned ${response.status}. Is the backend running?`);
+      let errorMessage = `Server returned ${response.status}`;
+      try {
+        const errData = await response.json();
+        errorMessage = errData.error || errorMessage;
+      } catch (e) {
+        // Fallback if the server didn't return JSON
+      }
+      throw new Error(`Failed to create order: ${errorMessage}`);
     }
     return response.json();
   },

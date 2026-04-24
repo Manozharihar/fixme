@@ -65,8 +65,14 @@ export function Cart() {
       });
 
       if (!res.ok) {
-        const errText = await res.text();
-        throw new Error(`Server returned ${res.status}. Is your backend running and VITE_API_URL set correctly?`);
+        let errorMessage = `Server returned ${res.status}.`;
+        try {
+          const errData = await res.json();
+          errorMessage = errData.error || errorMessage;
+        } catch (e) {
+          // Fallback if the server didn't return JSON
+        }
+        throw new Error(errorMessage);
       }
 
       const data = await res.json();
