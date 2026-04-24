@@ -205,6 +205,65 @@ expressApp.get("/api/parts", async (req, res) => {
   }
 });
 
+// iFixit proxy API endpoints
+expressApp.get("/api/ifixit-search", async (req, res) => {
+  const query = req.query.q?.toString();
+  if (!query) {
+    return res.status(400).json({ error: "Query parameter 'q' is required" });
+  }
+
+  try {
+    const response = await fetch(`https://www.ifixit.com/api/2.0/suggest/${encodeURIComponent(query)}?doctypes=guide`);
+    const data = await response.json();
+
+    if (!response.ok) {
+      return res.status(response.status).json({ error: "iFixit API error" });
+    }
+
+    res.json(data);
+  } catch (error) {
+    console.error("iFixit search failed:", error);
+    res.status(500).json({ error: "Failed to search iFixit guides" });
+  }
+});
+
+expressApp.get("/api/ifixit-categories", async (req, res) => {
+  try {
+    const response = await fetch("https://www.ifixit.com/api/2.0/categories");
+    const data = await response.json();
+
+    if (!response.ok) {
+      return res.status(response.status).json({ error: "iFixit API error" });
+    }
+
+    res.json(data);
+  } catch (error) {
+    console.error("iFixit categories failed:", error);
+    res.status(500).json({ error: "Failed to load iFixit categories" });
+  }
+});
+
+expressApp.get("/api/ifixit-guide", async (req, res) => {
+  const guideId = req.query.id?.toString();
+  if (!guideId) {
+    return res.status(400).json({ error: "Guide ID parameter is required" });
+  }
+
+  try {
+    const response = await fetch(`https://www.ifixit.com/api/2.0/guides/${encodeURIComponent(guideId)}`);
+    const data = await response.json();
+
+    if (!response.ok) {
+      return res.status(response.status).json({ error: "iFixit API error" });
+    }
+
+    res.json(data);
+  } catch (error) {
+    console.error("iFixit guide load failed:", error);
+    res.status(500).json({ error: "Failed to load iFixit guide" });
+  }
+});
+
 // Vite middleware for development
 async function startServer() {
   if (process.env.NODE_ENV !== "production") {
