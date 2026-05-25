@@ -182,3 +182,4 @@ const IFixitSearch: React.FC<{ initialQuery?: string }> = ({ initialQuery }) => 
 };
 
 export default IFixitSearch;
+

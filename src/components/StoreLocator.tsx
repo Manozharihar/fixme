@@ -3,7 +3,7 @@ import { MapPin } from 'lucide-react';
 
 export function StoreLocator() {
   return (
-    <div className="pt-32 pb-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 md:ml-20 min-h-screen">
+    <div className="pt-32 pb-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 md:ml-48 min-h-screen">
       <div className="mb-12">
         <h1 className="text-4xl font-heading mb-4 accent-text flex items-center gap-4 uppercase tracking-tighter">
           <MapPin size={40} /> SERVICE_CENTERS

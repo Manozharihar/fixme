@@ -70,7 +70,7 @@ export function Receipt() {
   const totalInRupees = receiptData.amount / 100;
 
   return (
-    <div className="min-h-screen bg-gray-50 py-24 md:py-8 md:ml-20">
+    <div className="min-h-screen bg-gray-50 py-24 md:py-8 md:ml-48">
       {/* Print styles to hide buttons and format correctly for physical paper */}
       <style>
         {`

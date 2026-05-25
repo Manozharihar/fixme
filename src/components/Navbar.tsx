@@ -21,11 +21,10 @@ export function Navbar() {
 
   const navItems = [
     { name: "Manuals", path: "/guides", icon: Activity },
-    { name: "Marketplace", path: "/shop", icon: ShoppingCart },
   ];
 
   return (
-    <nav className="fixed md:top-0 md:left-0 md:h-screen md:w-20 w-full z-50 bg-black border-r border-artistic-border flex flex-col items-center py-8 gap-12 h-16 md:h-auto">
+    <nav className="fixed md:top-0 md:left-0 md:h-screen md:w-48 w-full z-50 bg-black border-r border-artistic-border flex flex-col items-center py-8 gap-12 h-16 md:h-auto">
       <div className="flex items-center md:flex-col w-full px-4 md:px-0 justify-between md:justify-start h-full">
         <Link to="/" className="text-2xl font-bold tracking-tighter accent-text md:mb-12">
           Fix Me
@@ -147,3 +146,5 @@ export function Navbar() {
     </nav>
   );
 }
+
+

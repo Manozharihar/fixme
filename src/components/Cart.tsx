@@ -149,7 +149,7 @@ export function Cart() {
 
   if (items.length === 0) {
     return (
-      <div className="pt-32 pb-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 md:ml-20 min-h-screen">
+      <div className="pt-32 pb-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 md:ml-48 min-h-screen">
         <h1 className="text-4xl font-heading mb-4 accent-text">REPAIR_KIT</h1>
         <p className="text-blueprint-muted font-mono text-sm max-w-2xl uppercase opacity-50 mb-16">
           SHOPPING_CART // CHECKOUT_SYSTEM
@@ -179,7 +179,7 @@ export function Cart() {
   finalTotalINR = 1;
 
   return (
-    <div className="pt-32 pb-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 md:ml-20 min-h-screen">
+    <div className="pt-32 pb-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 md:ml-48 min-h-screen">
       <h1 className="text-4xl font-heading mb-4 accent-text">REPAIR_KIT</h1>
       <p className="text-blueprint-muted font-mono text-sm max-w-2xl uppercase opacity-50 mb-8">
         SHOPPING_CART // CHECKOUT_SYSTEM
@@ -305,3 +305,4 @@ export function Cart() {
     </div>
   );
 }
+
