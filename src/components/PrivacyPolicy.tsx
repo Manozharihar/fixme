@@ -13,61 +13,36 @@ export function PrivacyPolicy() {
             Privacy Policy
           </h1>
           <p className="text-zinc-300 max-w-2xl">
-            This privacy policy explains how Fix Me collects, uses, stores, and protects your information when you use our website and services.
+            This privacy policy explains that Fix Me does not collect or store any personal or usage data from visitors.
           </p>
         </div>
 
         <div className="space-y-10 text-sm leading-7 text-zinc-200">
           <section className="border border-artistic-border bg-zinc-950/60 p-6">
-            <h2 className="text-lg font-semibold mb-3">1. Information We Collect</h2>
+            <h2 className="text-lg font-semibold mb-3">1. No Data Collection</h2>
             <p>
-              We may collect information that you provide directly, such as your name, email address, device details, and repair-related search queries. We may also automatically collect usage data, including browser type, IP address, referral source, and interaction patterns to improve the experience.
+              Fix Me does not collect, store, or process any personal information or analytics data from visitors. We do not use cookies, tracking pixels, analytics services, or any third-party tracking tools on this site.
             </p>
           </section>
 
           <section className="border border-artistic-border bg-zinc-950/60 p-6">
-            <h2 className="text-lg font-semibold mb-3">2. How We Use Your Information</h2>
-            <ul className="list-disc pl-5 space-y-2">
-              <li>To provide, maintain, and improve our website and services.</li>
-              <li>To personalize content, recommendations, and search results.</li>
-              <li>To respond to support requests and customer inquiries.</li>
-              <li>To monitor performance, detect abuse, and protect platform security.</li>
-              <li>To comply with applicable legal obligations.</li>
-            </ul>
-          </section>
-
-          <section className="border border-artistic-border bg-zinc-950/60 p-6">
-            <h2 className="text-lg font-semibold mb-3">3. Cookies and Tracking</h2>
+            <h2 className="text-lg font-semibold mb-3">2. Advertising and Third Parties</h2>
             <p>
-              Fix Me uses cookies and similar technologies to remember preferences, support analytics, and improve performance. You can manage cookies through your browser settings. Disabling some cookies may affect site functionality.
+              This website does not include advertising networks or third-party services that collect user data. If any third-party service is added in the future, we will update this policy accordingly.
             </p>
           </section>
 
           <section className="border border-artistic-border bg-zinc-950/60 p-6">
-            <h2 className="text-lg font-semibold mb-3">4. Advertising and Third-Party Services</h2>
+            <h2 className="text-lg font-semibold mb-3">3. Data Security</h2>
             <p>
-              Our site may use advertising and analytics tools, including Google AdSense. These services may collect data to serve relevant ads and measure performance. Their use is governed by their respective privacy policies.
+              Because we do not collect or store personal data, there is no personal information retained on our servers.
             </p>
           </section>
 
           <section className="border border-artistic-border bg-zinc-950/60 p-6">
-            <h2 className="text-lg font-semibold mb-3">5. Data Sharing</h2>
+            <h2 className="text-lg font-semibold mb-3">4. Contact</h2>
             <p>
-              We do not sell your personal information. We may share information with service providers that assist us in operating the website, analytics, advertising, or support functions, only as necessary and under confidentiality obligations.
-            </p>
-          </section>
-
-          <section className="border border-artistic-border bg-zinc-950/60 p-6">
-            <h2 className="text-lg font-semibold mb-3">6. Data Security</h2>
-            <p>
-              We take reasonable administrative, technical, and physical safeguards to protect your data against unauthorized access, loss, misuse, or alteration. No method of transmission or storage is completely secure, but we continuously work to improve protection.
-            </p>
-          </section>
-
-          <section className="border border-artistic-border bg-zinc-950/60 p-6">
-            <h2 className="text-lg font-semibold mb-3">7. Your Rights</h2>
-            <p>
-              Depending on your jurisdiction, you may have rights regarding access, correction, deletion, portability, or restriction of processing of your personal data. To exercise these rights, contact us using the details below.
+              For questions about this policy, contact us at <span className="text-artistic-accent">privacy@fixme.example</span>.
             </p>
           </section>
 
